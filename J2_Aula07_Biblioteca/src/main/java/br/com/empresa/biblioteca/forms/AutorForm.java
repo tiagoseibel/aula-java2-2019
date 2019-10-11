@@ -5,6 +5,16 @@
  */
 package br.com.empresa.biblioteca.forms;
 
+import br.com.empresa.biblioteca.database.DbConnection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author tiagoseibel
@@ -143,9 +153,6 @@ public class AutorForm extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnSalvarActionPerformed
 
-    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-    }//GEN-LAST:event_formWindowOpened
-
     private void tabelaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaMouseClicked
 
     }//GEN-LAST:event_tabelaMouseClicked
@@ -156,6 +163,40 @@ public class AutorForm extends javax.swing.JFrame {
     private void btnRemoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoverActionPerformed
 
     }//GEN-LAST:event_btnRemoverActionPerformed
+
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        try {
+            cx1 = DbConnection.getConnection();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+        
+        DefaultTableModel m = 
+                (DefaultTableModel) tabela.getModel();
+        m.setNumRows(0);
+        
+        String query = "select * from autor";
+        
+        try {
+            PreparedStatement ps =
+                    cx1.prepareStatement(query);
+            
+            ResultSet rs = ps.executeQuery();
+            
+            while(rs.next()) {
+                String cod = rs.getString("autor_id");
+                String nome = rs.getString("nome");
+                
+                m.addRow(new String[] {
+                    cod, nome
+                });                
+            }
+            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+        
+    }//GEN-LAST:event_formWindowOpened
 
     /**
      * @param args the command line arguments
@@ -193,6 +234,7 @@ public class AutorForm extends javax.swing.JFrame {
         });
     }
 
+    private Connection cx1;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnNovo;
     private javax.swing.JButton btnRemover;
