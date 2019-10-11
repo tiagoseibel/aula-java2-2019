@@ -149,10 +149,6 @@ public class AutorForm extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
-
-    }//GEN-LAST:event_btnSalvarActionPerformed
-
     private void tabelaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaMouseClicked
 
     }//GEN-LAST:event_tabelaMouseClicked
@@ -198,6 +194,30 @@ public class AutorForm extends javax.swing.JFrame {
         
     }//GEN-LAST:event_formWindowOpened
 
+    private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
+        String id = txtAutor_ID.getText();
+        String nome = txtNome.getText();
+        
+        String query 
+           = "insert into autor (autor_id, nome) values (?,?)";
+        
+        try {
+            PreparedStatement ps = cx1.prepareStatement(query);
+            ps.setString(1, id);
+            ps.setString(2, nome);
+            ps.execute();
+            ps.close();
+            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }     
+        listar();
+    }//GEN-LAST:event_btnSalvarActionPerformed
+
+    private void listar() {
+        /// codigo aqui!
+    }
+    
     /**
      * @param args the command line arguments
      */
