@@ -158,6 +158,7 @@ public class AutorForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tabelaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaMouseClicked
+        this.modo = "U";
         // Linha selecionada na GRID
         int linha = tabela.getSelectedRow();
         // Le o codigo presente na posição 0 da linha
@@ -178,14 +179,22 @@ public class AutorForm extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_tabelaMouseClicked
 
-    private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
-    }//GEN-LAST:event_btnNovoActionPerformed
-
     private void btnRemoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoverActionPerformed
-
+        String query = "delete from autor where autor_id = ?";
+        
+        try {
+            PreparedStatement ps = cx1.prepareStatement(query);
+            ps.setString(1, txtAutor_ID.getText() );
+            ps.execute();
+        } catch (SQLException se) {
+            JOptionPane.showMessageDialog(this, se.getMessage());
+        }
+        listar();
     }//GEN-LAST:event_btnRemoverActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        this.modo = "I";
+        
         try {
             cx1 = DbConnection.getConnection();
         } catch (Exception ex) {
@@ -200,22 +209,44 @@ public class AutorForm extends javax.swing.JFrame {
         String id = txtAutor_ID.getText();
         String nome = txtNome.getText();
         
-        String query 
-           = "insert into autor (autor_id, nome) values (?,?)";
-        
-        try {
-            PreparedStatement ps = cx1.prepareStatement(query);
-            ps.setString(1, id);
-            ps.setString(2, nome);
-            ps.execute();
-            ps.close();
-            
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage());
+        if (this.modo.equals("I"))
+        {
+            String query 
+               = "insert into autor (autor_id, nome) values (?,?)";
+
+            try {
+                PreparedStatement ps = cx1.prepareStatement(query);
+                ps.setString(1, id);
+                ps.setString(2, nome);
+                ps.execute();
+                ps.close();
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage());
+            }
+        } else if (this.modo.equals("U")) {
+            String query 
+               = "update autor set nome = ? where autor_id = ?";
+
+            try {
+                PreparedStatement ps = cx1.prepareStatement(query);
+                ps.setString(1, nome);
+                ps.setString(2, id);
+                ps.execute();
+                ps.close();
+
+            } catch (SQLException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage());
+            }
         }
-        
         listar();
     }//GEN-LAST:event_btnSalvarActionPerformed
+
+    private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
+        this.modo = "I";
+        txtAutor_ID.setText("");
+        txtNome.setText("");
+    }//GEN-LAST:event_btnNovoActionPerformed
 
     private void listar() {
         DefaultTableModel m = 
@@ -280,6 +311,7 @@ public class AutorForm extends javax.swing.JFrame {
         });
     }
 
+    private String modo;
     private Connection cx1;
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnNovo;
