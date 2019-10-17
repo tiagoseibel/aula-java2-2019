@@ -89,7 +89,15 @@ public class AutorForm extends javax.swing.JFrame {
             new String [] {
                 "ID", "Nome"
             }
-        ));
+        ) {
+            boolean[] canEdit = new boolean [] {
+                false, false
+            };
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
         tabela.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tabelaMouseClicked(evt);
@@ -150,7 +158,24 @@ public class AutorForm extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void tabelaMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tabelaMouseClicked
-
+        // Linha selecionada na GRID
+        int linha = tabela.getSelectedRow();
+        // Le o codigo presente na posição 0 da linha
+        String cod = (String) tabela.getValueAt(linha, 0);
+        // Query
+        String query = "select * from autor where autor_id = ?";
+        try {
+            PreparedStatement ps = cx1.prepareStatement(query);
+            ps.setString(1, cod);
+            // Resultado
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()){
+                txtAutor_ID.setText( rs.getString("autor_id") );
+                txtNome.setText( rs.getString("nome") );
+            }
+        } catch(SQLException se) {
+            JOptionPane.showMessageDialog(this, se.getMessage());
+        }
     }//GEN-LAST:event_tabelaMouseClicked
 
     private void btnNovoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNovoActionPerformed
@@ -167,6 +192,32 @@ public class AutorForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         }
         
+        listar();
+        
+    }//GEN-LAST:event_formWindowOpened
+
+    private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
+        String id = txtAutor_ID.getText();
+        String nome = txtNome.getText();
+        
+        String query 
+           = "insert into autor (autor_id, nome) values (?,?)";
+        
+        try {
+            PreparedStatement ps = cx1.prepareStatement(query);
+            ps.setString(1, id);
+            ps.setString(2, nome);
+            ps.execute();
+            ps.close();
+            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage());
+        }
+        
+        listar();
+    }//GEN-LAST:event_btnSalvarActionPerformed
+
+    private void listar() {
         DefaultTableModel m = 
                 (DefaultTableModel) tabela.getModel();
         m.setNumRows(0);
@@ -190,32 +241,7 @@ public class AutorForm extends javax.swing.JFrame {
             
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
-        }
-        
-    }//GEN-LAST:event_formWindowOpened
-
-    private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
-        String id = txtAutor_ID.getText();
-        String nome = txtNome.getText();
-        
-        String query 
-           = "insert into autor (autor_id, nome) values (?,?)";
-        
-        try {
-            PreparedStatement ps = cx1.prepareStatement(query);
-            ps.setString(1, id);
-            ps.setString(2, nome);
-            ps.execute();
-            ps.close();
-            
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage());
-        }     
-        listar();
-    }//GEN-LAST:event_btnSalvarActionPerformed
-
-    private void listar() {
-        /// codigo aqui!
+        }        
     }
     
     /**
