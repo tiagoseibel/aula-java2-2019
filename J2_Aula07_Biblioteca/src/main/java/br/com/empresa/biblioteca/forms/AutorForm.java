@@ -5,15 +5,17 @@
  */
 package br.com.empresa.biblioteca.forms;
 
+import br.com.empresa.biblioteca.dao.AutorDAO;
 import br.com.empresa.biblioteca.database.DbConnection;
+import br.com.empresa.biblioteca.model.Autor;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+
+import static java.lang.Integer.parseInt;
 
 /**
  *
@@ -170,11 +172,11 @@ public class AutorForm extends javax.swing.JFrame {
             ps.setString(1, cod);
             // Resultado
             ResultSet rs = ps.executeQuery();
-            if (rs.next()){
-                txtAutor_ID.setText( rs.getString("autor_id") );
-                txtNome.setText( rs.getString("nome") );
+            if (rs.next()) {
+                txtAutor_ID.setText(rs.getString("autor_id"));
+                txtNome.setText(rs.getString("nome"));
             }
-        } catch(SQLException se) {
+        } catch (SQLException se) {
             JOptionPane.showMessageDialog(this, se.getMessage());
         }
     }//GEN-LAST:event_tabelaMouseClicked
@@ -184,7 +186,7 @@ public class AutorForm extends javax.swing.JFrame {
         
         try {
             PreparedStatement ps = cx1.prepareStatement(query);
-            ps.setString(1, txtAutor_ID.getText() );
+            ps.setString(1, txtAutor_ID.getText());
             ps.execute();
         } catch (SQLException se) {
             JOptionPane.showMessageDialog(this, se.getMessage());
@@ -209,35 +211,15 @@ public class AutorForm extends javax.swing.JFrame {
         String id = txtAutor_ID.getText();
         String nome = txtNome.getText();
         
-        if (this.modo.equals("I"))
-        {
-            String query 
-               = "insert into autor (autor_id, nome) values (?,?)";
-
-            try {
-                PreparedStatement ps = cx1.prepareStatement(query);
-                ps.setString(1, id);
-                ps.setString(2, nome);
-                ps.execute();
-                ps.close();
-
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage());
-            }
+        Autor a = new Autor();
+        a.setAutor_id(parseInt(id));
+        a.setNome(nome);
+        
+        if (this.modo.equals("I")) {
+            dao.insert(a);
+            
         } else if (this.modo.equals("U")) {
-            String query 
-               = "update autor set nome = ? where autor_id = ?";
-
-            try {
-                PreparedStatement ps = cx1.prepareStatement(query);
-                ps.setString(1, nome);
-                ps.setString(2, id);
-                ps.execute();
-                ps.close();
-
-            } catch (SQLException ex) {
-                JOptionPane.showMessageDialog(this, ex.getMessage());
-            }
+            dao.update(a);
         }
         listar();
     }//GEN-LAST:event_btnSalvarActionPerformed
@@ -247,25 +229,25 @@ public class AutorForm extends javax.swing.JFrame {
         txtAutor_ID.setText("");
         txtNome.setText("");
     }//GEN-LAST:event_btnNovoActionPerformed
-
+    
     private void listar() {
-        DefaultTableModel m = 
-                (DefaultTableModel) tabela.getModel();
+        DefaultTableModel m
+                = (DefaultTableModel) tabela.getModel();
         m.setNumRows(0);
         
         String query = "select * from autor";
         
         try {
-            PreparedStatement ps =
-                    cx1.prepareStatement(query);
+            PreparedStatement ps
+                    = cx1.prepareStatement(query);
             
             ResultSet rs = ps.executeQuery();
             
-            while(rs.next()) {
+            while (rs.next()) {
                 String cod = rs.getString("autor_id");
                 String nome = rs.getString("nome");
                 
-                m.addRow(new String[] {
+                m.addRow(new String[]{
                     cod, nome
                 });                
             }
@@ -274,7 +256,7 @@ public class AutorForm extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         }        
     }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -310,9 +292,10 @@ public class AutorForm extends javax.swing.JFrame {
             }
         });
     }
-
+    
     private String modo;
     private Connection cx1;
+    private AutorDAO dao = new AutorDAO();
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnNovo;
     private javax.swing.JButton btnRemover;
