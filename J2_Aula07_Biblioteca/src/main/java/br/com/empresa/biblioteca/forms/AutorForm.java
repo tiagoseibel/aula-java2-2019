@@ -49,7 +49,7 @@ public class AutorForm extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tabela = new javax.swing.JTable();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
@@ -165,31 +165,15 @@ public class AutorForm extends javax.swing.JFrame {
         int linha = tabela.getSelectedRow();
         // Le o codigo presente na posição 0 da linha
         String cod = (String) tabela.getValueAt(linha, 0);
-        // Query
-        String query = "select * from autor where autor_id = ?";
-        try {
-            PreparedStatement ps = cx1.prepareStatement(query);
-            ps.setString(1, cod);
-            // Resultado
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                txtAutor_ID.setText(rs.getString("autor_id"));
-                txtNome.setText(rs.getString("nome"));
-            }
-        } catch (SQLException se) {
-            JOptionPane.showMessageDialog(this, se.getMessage());
-        }
+        Autor a = dao.buscar(parseInt(cod));
+        txtAutor_ID.setText("" + a.getAutor_id());
+        txtNome.setText(a.getNome());
     }//GEN-LAST:event_tabelaMouseClicked
 
     private void btnRemoverActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnRemoverActionPerformed
-        String query = "delete from autor where autor_id = ?";
-        
-        try {
-            PreparedStatement ps = cx1.prepareStatement(query);
-            ps.setString(1, txtAutor_ID.getText());
-            ps.execute();
-        } catch (SQLException se) {
-            JOptionPane.showMessageDialog(this, se.getMessage());
+        int opt = JOptionPane.showConfirmDialog(this, "Excluir?");
+        if (opt == JOptionPane.YES_OPTION) {
+            dao.delete(parseInt(txtAutor_ID.getText()));
         }
         listar();
     }//GEN-LAST:event_btnRemoverActionPerformed
@@ -235,26 +219,14 @@ public class AutorForm extends javax.swing.JFrame {
                 = (DefaultTableModel) tabela.getModel();
         m.setNumRows(0);
         
-        String query = "select * from autor";
-        
-        try {
-            PreparedStatement ps
-                    = cx1.prepareStatement(query);
-            
-            ResultSet rs = ps.executeQuery();
-            
-            while (rs.next()) {
-                String cod = rs.getString("autor_id");
-                String nome = rs.getString("nome");
-                
-                m.addRow(new String[]{
-                    cod, nome
-                });                
-            }
-            
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, ex.getMessage());
-        }        
+        for (Autor a : dao.listar()) {
+            m.addRow(
+                    new String[]{
+                        "" + a.getAutor_id(),
+                        a.getNome()
+                    }
+            );
+        }
     }
 
     /**
