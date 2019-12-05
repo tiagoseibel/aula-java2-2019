@@ -16,6 +16,11 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 import static java.lang.Integer.parseInt;
+import java.util.HashMap;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JasperFillManager;
+import net.sf.jasperreports.engine.JasperPrint;
+import net.sf.jasperreports.view.JasperViewer;
 
 /**
  *
@@ -48,6 +53,7 @@ public class AutorForm extends javax.swing.JFrame {
         btnRemover = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         tabela = new javax.swing.JTable();
+        btnImprimir = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -107,6 +113,13 @@ public class AutorForm extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(tabela);
 
+        btnImprimir.setText("Imprimir");
+        btnImprimir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnImprimirActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -124,7 +137,9 @@ public class AutorForm extends javax.swing.JFrame {
                                 .addComponent(txtAutor_ID, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addComponent(txtNome)))
                         .addGroup(layout.createSequentialGroup()
-                            .addGap(157, 157, 157)
+                            .addGap(55, 55, 55)
+                            .addComponent(btnImprimir)
+                            .addGap(29, 29, 29)
                             .addComponent(btnNovo)
                             .addGap(14, 14, 14)
                             .addComponent(btnSalvar)
@@ -150,7 +165,8 @@ public class AutorForm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnNovo)
                     .addComponent(btnSalvar)
-                    .addComponent(btnRemover))
+                    .addComponent(btnRemover)
+                    .addComponent(btnImprimir))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 214, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -180,28 +196,28 @@ public class AutorForm extends javax.swing.JFrame {
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         this.modo = "I";
-        
+
         try {
             cx1 = DbConnection.getConnection();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage());
         }
-        
+
         listar();
-        
+
     }//GEN-LAST:event_formWindowOpened
 
     private void btnSalvarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSalvarActionPerformed
         String id = txtAutor_ID.getText();
         String nome = txtNome.getText();
-        
+
         Autor a = new Autor();
         a.setAutor_id(parseInt(id));
         a.setNome(nome);
-        
+
         if (this.modo.equals("I")) {
             dao.insert(a);
-            
+
         } else if (this.modo.equals("U")) {
             dao.update(a);
         }
@@ -213,12 +229,26 @@ public class AutorForm extends javax.swing.JFrame {
         txtAutor_ID.setText("");
         txtNome.setText("");
     }//GEN-LAST:event_btnNovoActionPerformed
-    
+
+    private void btnImprimirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImprimirActionPerformed
+        try {
+            JasperPrint print = JasperFillManager
+                    .fillReport("reports/Blank_A4.jasper",
+                            new HashMap<>(),
+                            cx1);
+
+            JasperViewer.viewReport(print, false);
+            
+        } catch (JRException ex) {
+            System.out.println("Error: " + ex.getMessage() );
+        }
+    }//GEN-LAST:event_btnImprimirActionPerformed
+
     private void listar() {
         DefaultTableModel m
                 = (DefaultTableModel) tabela.getModel();
         m.setNumRows(0);
-        
+
         for (Autor a : dao.listar()) {
             m.addRow(
                     new String[]{
@@ -236,7 +266,7 @@ public class AutorForm extends javax.swing.JFrame {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
+         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
@@ -264,11 +294,12 @@ public class AutorForm extends javax.swing.JFrame {
             }
         });
     }
-    
+
     private String modo;
     private Connection cx1;
     private AutorDAO dao = new AutorDAO();
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnImprimir;
     private javax.swing.JButton btnNovo;
     private javax.swing.JButton btnRemover;
     private javax.swing.JButton btnSalvar;
